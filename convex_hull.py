@@ -63,8 +63,10 @@ class ConvexHullSolver(QObject):
 		assert( type(points) == list and type(points[0]) == QPointF )
 
 		t1 = time.time()
-
-		# TODO: SORT THE POINTS BY INCREASING X-VALUE
+		# Sort points by increasing x value
+		points = sorted(points, key=lambda point: point.x())
+		for i in points:
+			print(i.x())
 		t2 = time.time()
 
 		t3 = time.time()
