@@ -9,12 +9,23 @@ else:
 class Hull:
   # Point leftmostPoint
   # Point rightmostPoint
+  def __init__(self, left, right):
+    if isinstance(next, Point):
+      self.leftmostPoint = left
+    else:
+      self.leftmostPoint = {}
+    if isinstance(next, Point):
+      self.rightmostPoint = right
+    else:
+      self.rightmostPoint = {}
 
-  def setLeftmost(self, leftPt):
-    self.leftmostPoint = leftPt
+  def setLeftmost(self, left):
+    if isinstance(next, Point):
+      self.leftmostPoint = left
 
-  def setRightmost(self, rightPt):
-    self.rightmostPoint = rightPt
+  def setRightmost(self, right):
+    if isinstance(next, Point):
+      self.rightmostPoint = right
 
 class Point:
   # QPointF myPoint
