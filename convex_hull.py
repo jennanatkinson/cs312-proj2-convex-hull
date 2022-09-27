@@ -1,3 +1,4 @@
+from hull import Point
 from which_pyqt import PYQT_VER
 if PYQT_VER == 'PYQT5':
 	from PyQt5.QtCore import QLineF, QPointF, QObject
@@ -20,7 +21,7 @@ BLUE = (0,0,255)
 PAUSE = 0.25
 
 #
-# This is the class you have to complete.
+# Class to solve the hull
 #
 class ConvexHullSolver(QObject):
 
@@ -55,6 +56,15 @@ class ConvexHullSolver(QObject):
 	def showText(self,text):
 		self.view.displayStatusText(text)
 
+	def generatePolygon(self, root:Point):
+		polygon = []
+		polygon.append(QLineF(root.pt, root.next.pt))
+		point:Point = root.next
+		while (point != root):
+			polygon.append(QLineF(point.pt, point.next.pt))
+			point = point.next
+		return polygon
+
 # This is the method that gets called by the GUI and actually executes
 # the finding of the hull
 	def compute_hull( self, points, pause, view):
@@ -65,13 +75,21 @@ class ConvexHullSolver(QObject):
 		t1 = time.time()
 		# Sort points by increasing x value
 		points = sorted(points, key=lambda point: point.x())
+		pointObjectList = []
 		for i in points:
-			print(i.x())
+			pointObjectList.append(Point(i))
 		t2 = time.time()
 
 		t3 = time.time()
-		# this is a dummy polygon of the first 3 unsorted points
-		polygon = [QLineF(points[i],points[(i+1)%3]) for i in range(3)]
+
+		# this is a dummy polygon
+		pointObjectList[0].setNext(pointObjectList[1])
+		pointObjectList[1].setNext(pointObjectList[2])
+		pointObjectList[2].setNext(pointObjectList[3])
+		pointObjectList[3].setNext(pointObjectList[0])
+
+		polygon = self.generatePolygon(pointObjectList[0])
+		# polygon = [QLineF(points[i],points[(i+1)%3]) for i in range(5)]
 		# TODO: REPLACE THE LINE ABOVE WITH A CALL TO YOUR DIVIDE-AND-CONQUER CONVEX HULL SOLVER
 		t4 = time.time()
 
@@ -79,6 +97,9 @@ class ConvexHullSolver(QObject):
 		# object can be created with two QPointF objects corresponding to the endpoints
 		self.showHull(polygon,RED)
 		self.showText('Time Elapsed (Convex Hull): {:3.3f} sec'.format(t4-t3))
+
+
+	# def hull_solver(self, pointList):
 
 
 
