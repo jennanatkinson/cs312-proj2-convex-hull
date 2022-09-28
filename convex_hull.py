@@ -129,66 +129,55 @@ class ConvexHullSolver(QObject):
 		# Return the new hull
 		return leftHull
 	
+	# Returns true if testSlope is more negative
+	isMoreNegativeSlope = lambda testSlope, ogSlope: testSlope < ogSlope
+	
+	# Returns true if testSlope is more negative
+	isMorePositiveSlope = lambda testSlope, ogSlope: testSlope > ogSlope
+
 	# clockwise is always more positive
 	# counterclockwise is always trying to find negative
 	def findTopTangent(self, leftHull:Hull, rightHull:Hull):
 		initialLeftTangentPt = leftTangentPt = leftHull.rightmostPt
 		initialRightTangentPt = rightTangentPt = rightHull.leftmostPt
 		tangentSlope = self.slope(initialLeftTangentPt, initialRightTangentPt)
-		
 		self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)], GREEN)
 
 		# Test tangent slopes by changing points on left
 		leftPt = initialLeftTangentPt.counterclockwise()
-		while (leftPt != {} and leftPt != initialLeftTangentPt):
-			testSlope = self.slope(leftPt, initialRightTangentPt)
-			# Try to find a more negative slope
-			if testSlope < tangentSlope:
-				tangentSlope = testSlope
-				leftTangentPt = leftPt
-			leftPt = leftPt.counterclockwise()
-		
+		leftTangentPt, tangentSlope = self.findBestPtWithSlope(leftPt, initialLeftTangentPt, rightTangentPt, tangentSlope, self.isMoreNegativeSlope, False, Point.counterclockwise)
 		self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)], GREEN)
 		
 		# Test tangent slopes by changing points on right
 		rightPt = initialRightTangentPt.clockwise()
-		while (rightPt != {} and rightPt != initialRightTangentPt):
-			testSlope = self.slope(rightPt, leftTangentPt)
-			# Try to find a more positive slope
-			if testSlope > tangentSlope:
-				tangentSlope = testSlope
-				rightTangentPt = rightPt
-			rightPt = rightPt.clockwise()
-			
+		rightTangentPt, tangentSlope = self.findBestPtWithSlope(rightPt, initialRightTangentPt, leftTangentPt, tangentSlope, self.isMorePositiveSlope, False, Point.clockwise)
 		self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)], GREEN)
 
 		# Test tangent slopes on the left one more time
-		initialLeftTangentPt = leftTangentPt
-		leftPt = initialLeftTangentPt.counterclockwise()
-		while (leftPt != {} and leftPt != initialLeftTangentPt):
-			testSlope = self.slope(leftPt, rightTangentPt)
-			# Try to find a more negative slope
-			if testSlope < tangentSlope:
-				tangentSlope = testSlope
-				leftTangentPt = leftPt
-			leftPt = leftPt.counterclockwise()
+		leftPt = leftTangentPt.counterclockwise()
+		leftTangentPt, tangentSlope = self.findBestPtWithSlope(leftPt, leftTangentPt, rightTangentPt, tangentSlope, self.isMoreNegativeSlope, True, Point.counterclockwise)
 
 		self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)], GREEN)
+		# Return best points on the left and the right
 		return leftTangentPt, rightTangentPt
 	
 	# def findBottomTangent(self, leftHull:Hull, rightHull:Hull):
-	# 	return
 
-	def findBestPtWithSlope(self, pt, initialPt, otherHullPt, slope, compare, getNext):
+	def findBestPtWithSlope(self, pt:Point, initialPt:Point, otherHullPt:Point, tangentSlope:float, compare, stopTesting:bool, getNext):
 		bestPt = None
+		# Test each point until we get back to the beginning
 		while (pt != {} and pt != initialPt):
 			testSlope = self.slope(pt, otherHullPt)
 			# Try to find a more negative/positive slope
-			if compare(testSlope, slope):
-				slope = testSlope
+			if compare(testSlope, tangentSlope):
+				tangentSlope = testSlope
 				bestPt = pt
-			pt = getNext(pt) # go clockwise/counterclockwise to test again
-		return bestPt, slope
+			# If we don't need to keep testing other slopes, then stop
+			elif stopTesting:
+				break
+			# Go clockwise/counterclockwise to test again
+			pt = getNext(pt) 
+		return bestPt, tangentSlope
 	
 	def slope(self, pt1:Point, pt2:Point):
 		return (pt2.y() - pt1.y()) / (pt2.x() - pt1.x())
