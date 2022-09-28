@@ -7,28 +7,31 @@ else:
 	raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
 
 class Hull:
-  # Point leftmostPoint
-  # Point rightmostPoint
+  # Point leftmostPt
+  # Point rightmostPt
   def __init__(self, left, right):
-    if isinstance(next, Point):
-      self.leftmostPoint = left
+    if isinstance(left, Point):
+      self.leftmostPt = left
     else:
-      self.leftmostPoint = {}
-    if isinstance(next, Point):
-      self.rightmostPoint = right
+      self.leftmostPt = {}
+    if isinstance(right, Point):
+      self.rightmostPt = right
     else:
-      self.rightmostPoint = {}
+      self.rightmostPt = {}
 
   def setLeftmost(self, left):
     if isinstance(next, Point):
-      self.leftmostPoint = left
+      self.leftmostPt = left
 
   def setRightmost(self, right):
     if isinstance(next, Point):
-      self.rightmostPoint = right
+      self.rightmostPt = right
+
+  def __str__(self):
+    return f"Hull\nLeftmost: {self.leftmostPt}\nRightmost: {self.rightmostPt}"
 
 class Point:
-  # QPointF myPoint
+  # QPointF pt
   # Point next #clockwise
   # Point prev #counterclockwise
   def __init__(self, point:QPointF, next=None, prev=None):
@@ -61,3 +64,6 @@ class Point:
 
   def counterclockwise(self):
     return self.prev
+
+  def __str__(self):
+    return f"Point (X: {self.pt.x()} Y: {self.pt.y()})"
