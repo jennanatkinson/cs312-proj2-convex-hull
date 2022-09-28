@@ -6,29 +6,6 @@ elif PYQT_VER == 'PYQT4':
 else:
 	raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
 
-class Hull:
-  # Point leftmostPt
-  # Point rightmostPt
-  def __init__(self, left, right):
-    if isinstance(left, Point):
-      self.leftmostPt = left
-    else:
-      self.leftmostPt = {}
-    if isinstance(right, Point):
-      self.rightmostPt = right
-    else:
-      self.rightmostPt = {}
-
-  def setLeftmost(self, left):
-    if isinstance(next, Point):
-      self.leftmostPt = left
-
-  def setRightmost(self, right):
-    if isinstance(next, Point):
-      self.rightmostPt = right
-
-  def __str__(self):
-    return f"Hull\nLeftmost: {self.leftmostPt}\nRightmost: {self.rightmostPt}"
 
 class Point:
   # QPointF pt
@@ -67,3 +44,21 @@ class Point:
 
   def __str__(self):
     return f"Point (X: {self.pt.x()} Y: {self.pt.y()})"
+
+class Hull:
+  # Point leftmostPt
+  # Point rightmostPt
+  # int hullLen
+  def __init__(self, left:Point, right:Point, hullLen:int):
+    self.leftmostPt = left
+    self.rightmostPt = right
+    self.hullLen = hullLen
+
+  def setLeftmost(self, left:Point):
+    self.leftmostPt = left
+
+  def setRightmost(self, right:Point):
+    self.rightmostPt = right
+
+  def __str__(self):
+    return f"Hull (EdgeLen: {self.hullLen})\nLeftmost: {self.leftmostPt}\nRightmost: {self.rightmostPt}"
