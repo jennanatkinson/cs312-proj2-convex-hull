@@ -1,28 +1,18 @@
 #!/usr/bin/env python3
-
-
-import math
 import random
 import signal
 import sys
 import time
-
-
-from which_pyqt import PYQT_VER
-if PYQT_VER == 'PYQT5':
-	from PyQt5.QtWidgets import *
-	from PyQt5.QtGui import *
-	from PyQt5.QtCore import *
-elif PYQT_VER == 'PYQT4':
-	from PyQt4.QtGui import *
-	from PyQt4.QtCore import *
-else:
-	raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
-
-
-#TODO: Error checking on txt boxes
-#TODO: Color strings
-
+# from which_pyqt import PYQT_VER
+# if PYQT_VER == 'PYQT5':
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+# elif PYQT_VER == 'PYQT4':
+# 	from PyQt4.QtGui import *
+# 	from PyQt4.QtCore import *
+# else:
+# 	raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
 
 # Import the code with the actual implementation
 from convex_hull import *
@@ -226,7 +216,7 @@ class Proj2GUI( QMainWindow ):
 		self.setCentralWidget( boxwidget )
 
 		self.view           = PointLineView( self.statusBar )
-		self.npoints        = QLineEdit('10')
+		self.npoints        = QLineEdit('3') #TODO: change back to 10
 		self.generateButton = QPushButton('Generate')
 		self.solveButton    = QPushButton('Solve')
 		self.clearButton    = QPushButton('Clear To Points')

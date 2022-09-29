@@ -104,6 +104,7 @@ class ConvexHullSolver(QObject):
 		# print("\n")
 		t4 = time.time()
 
+		self.clearAllLines()
 		self.showHull(self.generatePolygonFromHull(finalHull),RED)
 		self.showText('Time Elapsed (Convex Hull): {:3.3f} sec'.format(t4-t3))
 
@@ -116,7 +117,7 @@ class ConvexHullSolver(QObject):
 			print(pt)
 			pt = pt.next
 		
-	HULL_DRAW = 2
+	# HULL_DRAW = 2
 	# Returns a Hull object combined from a list of hulls
 	def hull_solver(self, hullList):
 		if len(hullList) == 1:
@@ -125,14 +126,14 @@ class ConvexHullSolver(QObject):
 			halfLen = int(len(hullList)/2)
 			
 			leftHull = self.hull_solver(hullList[:halfLen])
-			if (leftHull.hullLen >= self.HULL_DRAW):
-				self.showHull(self.generatePolygonFromHull(leftHull),BLUE)
-				self.clearAllLines()
+			# if (leftHull.hullLen >= self.HULL_DRAW):
+			# 	self.showHull(self.generatePolygonFromHull(leftHull),BLUE)
+			# 	self.clearAllLines()
 			
 			rightHull = self.hull_solver(hullList[halfLen:])
-			if (rightHull.hullLen >= self.HULL_DRAW):
-				self.showHull(self.generatePolygonFromHull(rightHull),BLUE)
-				self.clearAllLines()
+			# if (rightHull.hullLen >= self.HULL_DRAW):
+			# 	self.showHull(self.generatePolygonFromHull(rightHull),BLUE)
+			# 	self.clearAllLines()
 			
 			return self.combine_hull(leftHull, rightHull)
 			
@@ -164,6 +165,7 @@ class ConvexHullSolver(QObject):
 		
 		newHull = Hull(leftmost, rightmost, hullLen)
 		# print(f"Combined {newHull}\n")
+		# self.showHull(self.generatePolygonFromHull(newHull),BLUE)
 		return newHull
 	
 	# Returns the leftmost, rightmost and number of points in hull's edge after going around the linked list
@@ -202,22 +204,38 @@ class ConvexHullSolver(QObject):
 		leftTangentPt = leftHull.rightmostPt
 		rightTangentPt = rightHull.leftmostPt
 		tangentSlope = self.slope(leftTangentPt, rightTangentPt)
+		# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
+		# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
 		# Test tangent slopes by changing points on left
 		leftPt = leftDirection(leftTangentPt)
 		leftTangentPt, tangentSlope = self.findBestPtWithSlope(leftPt, leftTangentPt, rightTangentPt, tangentSlope, leftCompare, False, leftDirection)
-		
+		# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
+		# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
+
 		# Test tangent slopes by changing points on right
 		rightPt = rightDirection(rightTangentPt)
 		rightTangentPt, tangentSlope = self.findBestPtWithSlope(rightPt, rightTangentPt, leftTangentPt, tangentSlope, rightCompare, False, rightDirection)
+		# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
+		# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
-		# Test tangent slopes on the left one more time
-		leftPt = leftDirection(leftTangentPt)
-		leftTangentPt, tangentSlope = self.findBestPtWithSlope(leftPt, leftTangentPt, rightTangentPt, tangentSlope, leftCompare, True, leftDirection)
+		oldLeftPt = None
+		oldRightPt = None
+		# Continue testing right or left tangents until neither change
+		while (oldLeftPt != leftPt or oldRightPt != rightPt):
+			oldLeftPt = leftPt
+			oldRightPt = rightPt
+			# Test tangent slopes on the left again
+			leftPt = leftDirection(leftTangentPt)
+			leftTangentPt, tangentSlope = self.findBestPtWithSlope(leftPt, leftTangentPt, rightTangentPt, tangentSlope, leftCompare, True, leftDirection)
+			# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
+			# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
-		# Test tangent slopes on the right one more time
-		rightPt = rightDirection(rightTangentPt)
-		rightTangentPt, tangentSlope = self.findBestPtWithSlope(rightPt, rightTangentPt, leftTangentPt, tangentSlope, rightCompare, True, rightDirection)
+			# Test tangent slopes on the right again
+			rightPt = rightDirection(rightTangentPt)
+			rightTangentPt, tangentSlope = self.findBestPtWithSlope(rightPt, rightTangentPt, leftTangentPt, tangentSlope, rightCompare, True, rightDirection)
+			# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
+			# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
 		# Return best points on the left and the right
 		return leftTangentPt, rightTangentPt
