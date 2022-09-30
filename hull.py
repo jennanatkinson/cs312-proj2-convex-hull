@@ -6,7 +6,7 @@ elif PYQT_VER == 'PYQT4':
 else:
 	raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
 
-
+# Space: O(1) (both Point obj are pointers)
 class Point:
   # QPointF pt
   # Point next #clockwise
@@ -45,6 +45,7 @@ class Point:
   def __str__(self):
     return f"Point (X: {self.pt.x()} Y: {self.pt.y()})"
 
+# Space: O(1) (both Point obj are pointers)
 class Hull:
   # Point leftmostPt
   # Point rightmostPt

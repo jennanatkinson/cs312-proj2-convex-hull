@@ -76,8 +76,8 @@ class ConvexHullSolver(QObject):
 			point = point.next
 		return polygon
 
-# This is the method that gets called by the GUI and actually executes
-# the finding of the hull
+# This is the method that gets called by the GUI and actually executes the finding of the hull
+	# Time: O(nlogn) Space: O(n**2)
 	def compute_hull(self, points, pause, view):
 		self.pause = pause
 		self.view = view
@@ -85,11 +85,11 @@ class ConvexHullSolver(QObject):
 
 		t1 = time.time()
 		# Sort points by increasing x value
-		points = sorted(points, key=lambda point: point.x())
+		points = sorted(points, key=lambda point: point.x()) # Time: O(nlogn) Space: O(n)
 		
 		# Creates a Hull from each point, and builds a list
 		hullList = []
-		for i in points:
+		for i in points: # Time: O(n) Space: O(n)
 			point = Point(i)
 			hullList.append(Hull(point, point, 1))
 		t2 = time.time()
@@ -97,7 +97,7 @@ class ConvexHullSolver(QObject):
 		t3 = time.time()
 
 		# Solves the hulls by combining them
-		finalHull = self.hull_solver(hullList)
+		finalHull = self.hull_solver(hullList) # Time: O(nlogn) Space: O(n**2)
 		# print("SUCCESS_________")
 		# print(f"Final {finalHull}")
 		# self.printHullValues(finalHull)
@@ -119,6 +119,7 @@ class ConvexHullSolver(QObject):
 		
 	# HULL_DRAW = 2
 	# Returns a Hull object combined from a list of hulls
+	# Time: O(nlogn) Space: O(n**2)
 	def hull_solver(self, hullList):
 		if len(hullList) == 1:
 			return hullList[0]
@@ -135,9 +136,10 @@ class ConvexHullSolver(QObject):
 			# 	self.showHull(self.generatePolygonFromHull(rightHull),BLUE)
 			# 	self.clearAllLines()
 			
-			return self.combine_hull(leftHull, rightHull)
+			return self.combine_hull(leftHull, rightHull) # Time: O(n) Space: O(1)
 			
 	# Combines two hulls together into a single hull
+	# Time: O(n) Space: O(1)
 	def combine_hull(self, leftHull:Hull, rightHull:Hull):
 		# print("COMBINING HULLS_________")
 		# print(f"Left {leftHull}")
@@ -146,9 +148,11 @@ class ConvexHullSolver(QObject):
 		# self.showHull(self.generatePolygonFromHull(rightHull),BLUE)
 		
 		# Find the top tangent
+		# Time: O(n) Space: O(1)
 		topLeftTanPt, topRightTanPt = self.findTopTangent(leftHull, rightHull)
 
 		# Find the bottom tangent
+		# Time: O(n) Space: O(1)
 		bottomLeftTanPt, bottomRightTanPt = self.findBottomTangent(leftHull, rightHull)
 
 		# Reset points to exclude inside points from old hull (maintaining clockwise as 'next' ordering)
@@ -159,22 +163,23 @@ class ConvexHullSolver(QObject):
 		bottomLeftTanPt.setPrev(bottomRightTanPt)
 
 		# Find new left and rightmost of the new hull
-		leftmost, rightmost, hullLen = self.findExtremePts(topLeftTanPt) # topLeftTanPt is completely arbitrary
+		# Time: O(n) Space: O(1)
+		leftmost, rightmost, hullLen = self.findExtremePts(topLeftTanPt) # choosing topLeftTanPt is arbitrary
 
 		# Return the new hull
-		
-		newHull = Hull(leftmost, rightmost, hullLen)
+		newHull = Hull(leftmost, rightmost, hullLen) # Time: O(1) Space: O(1)
 		# print(f"Combined {newHull}\n")
 		# self.showHull(self.generatePolygonFromHull(newHull),BLUE)
 		return newHull
 	
 	# Returns the leftmost, rightmost and number of points in hull's edge after going around the linked list
+	# Time: O(n) Space: O(1)
 	def findExtremePts(self, initialPt:Point):
 		hullLen = 1
 		leftmost = initialPt
 		rightmost = initialPt
 		pt = initialPt.next
-		while(pt != {} and pt != initialPt):
+		while(pt != {} and pt != initialPt): # Time: O(n) Space: O(1)
 			hullLen += 1
 			if pt.x() < leftmost.x():
 				leftmost = pt
@@ -190,73 +195,76 @@ class ConvexHullSolver(QObject):
 	isMorePositiveSlope = lambda self, testSlope, ogSlope: testSlope > ogSlope
 
 	# NOTE: clockwise is always trying to find a more positive sloped tangent, counterclockwise is always trying to find negative
+	# Time: O(n) Space: O(1)
 	def findBottomTangent(self, leftHull:Hull, rightHull:Hull):
 		return self.findTangent(leftHull, Point.clockwise, self.isMorePositiveSlope, 
 		rightHull,  Point.counterclockwise, self.isMoreNegativeSlope)
 	
+	# Time: O(n) Space: O(1)
 	def findTopTangent(self, leftHull:Hull, rightHull:Hull):
 		return self.findTangent(leftHull, Point.counterclockwise, self.isMoreNegativeSlope, 
 		rightHull, Point.clockwise, self.isMorePositiveSlope)
 	
 	# Returns top or bottom tangent based on the directions given
 	# Left/right direction is clockwise/counterclockwise
+	# Time: O(n) Space: O(1)
 	def findTangent(self, leftHull:Hull, leftDirection, leftCompare, rightHull:Hull, rightDirection, rightCompare):
 		leftTangentPt = leftHull.rightmostPt
 		rightTangentPt = rightHull.leftmostPt
-		tangentSlope = self.slope(leftTangentPt, rightTangentPt)
 		# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
 		# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
-		# Test tangent slopes by changing points on left
-		leftPt = leftDirection(leftTangentPt)
-		leftTangentPt, tangentSlope = self.findBestPtWithSlope(leftPt, leftTangentPt, rightTangentPt, tangentSlope, leftCompare, False, leftDirection)
+		# Test tangent slopes by changing points on left # Time: O(n/2) Space: O(1)
+		leftTangentPt = self.findBestPtWithSlope(leftTangentPt, rightTangentPt, leftCompare, False, leftDirection)
 		# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
 		# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
-		# Test tangent slopes by changing points on right
-		rightPt = rightDirection(rightTangentPt)
-		rightTangentPt, tangentSlope = self.findBestPtWithSlope(rightPt, rightTangentPt, leftTangentPt, tangentSlope, rightCompare, False, rightDirection)
+		# Test tangent slopes by changing points on right # Time: O(n/2) Space: O(1)
+		rightTangentPt = self.findBestPtWithSlope(rightTangentPt, leftTangentPt, rightCompare, False, rightDirection)
 		# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
 		# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
 		oldLeftPt = None
 		oldRightPt = None
 		# Continue testing right or left tangents until neither change
-		while (oldLeftPt != leftPt or oldRightPt != rightPt):
-			oldLeftPt = leftPt
-			oldRightPt = rightPt
-			# Test tangent slopes on the left again
-			leftPt = leftDirection(leftTangentPt)
-			leftTangentPt, tangentSlope = self.findBestPtWithSlope(leftPt, leftTangentPt, rightTangentPt, tangentSlope, leftCompare, True, leftDirection)
+		while (oldLeftPt != leftTangentPt or oldRightPt != rightTangentPt):  # Time: O(n/2) Space: O(1) because we will run this loop at most 4 times
+			oldLeftPt = leftTangentPt
+			oldRightPt = rightTangentPt
+			# Test tangent slopes on the left again # Time: O(n/2) Space: O(1)
+			leftTangentPt = self.findBestPtWithSlope(leftTangentPt, rightTangentPt, leftCompare, True, leftDirection)
 			# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
 			# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
-			# Test tangent slopes on the right again
-			rightPt = rightDirection(rightTangentPt)
-			rightTangentPt, tangentSlope = self.findBestPtWithSlope(rightPt, rightTangentPt, leftTangentPt, tangentSlope, rightCompare, True, rightDirection)
+			# Test tangent slopes on the right again # Time: O(n/2) Space: O(1)
+			rightTangentPt = self.findBestPtWithSlope(rightTangentPt, leftTangentPt, rightCompare, True, rightDirection)
 			# self.showTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)],GREEN)
 			# self.eraseTangent([QLineF(leftTangentPt.pt, rightTangentPt.pt)])
 
 		# Return best points on the left and the right
 		return leftTangentPt, rightTangentPt
 	
-
-	def findBestPtWithSlope(self, pt:Point, initialPt:Point, otherHullPt:Point, tangentSlope:float, compare, stopTesting:bool, getNext):
+	# Traverse the linked list in search of a more positive or negative slope
+	# Time: O(n/2) Space: O(1)
+	def findBestPtWithSlope(self, initialPt:Point, otherHullPt:Point, compare, stopTesting:bool, getNext):
+		pt = getNext(initialPt) # Time: O(1)
+		tangentSlope = self.slope(initialPt, otherHullPt)
 		bestPt = initialPt
 		# Test each point until we get back to the beginning
-		while (pt != {} and pt != initialPt):
-			testSlope = self.slope(pt, otherHullPt)
+		while (pt != {} and pt != initialPt): # Time: O(n/2) Space: O(1)
+			testSlope = self.slope(pt, otherHullPt) # Time: O(1) Space: O(1)
 			# Try to find a more negative/positive slope
-			if compare(testSlope, tangentSlope):
+			if compare(testSlope, tangentSlope):  # Time: O(1) Space: O(1)
 				tangentSlope = testSlope
 				bestPt = pt
 			# If we don't need to keep testing other slopes, then stop
 			elif stopTesting:
 				break
 			# Go clockwise/counterclockwise to test again
-			pt = getNext(pt) 
-		return bestPt, tangentSlope
+			pt = getNext(pt) # Time: O(1)
+		return bestPt
 	
-	def slope(self, pt1:Point, pt2:Point):
+	# Returns slope of two points
+	# Time: O(1) Space: O(1)
+	def slope(self, pt1:Point, pt2:Point): 
 		return (pt2.y() - pt1.y()) / (pt2.x() - pt1.x())
 
